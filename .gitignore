@@ -1,7 +1,6 @@
-tmp*
-temp*
-Temp*
-Tmp*
-*.out
-*.pdf
-main
+tmp**
+isodir
+sysroot
+
+*.bin
+*.iso
