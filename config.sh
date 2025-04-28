@@ -1,5 +1,5 @@
-SYSTEM_HEADER_PROJECTS="libc kernel"
-PROJECTS="libc kernel"
+SYSTEM_HEADER_PROJECTS="libc libc++ kernel"
+PROJECTS="libc libc++ kernel"
 
 export MAKE=${MAKE:-make}
 export HOST=${HOST:-$(./HelperScripts.sh default-host)}

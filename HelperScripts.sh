@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [[ $1 == "default-host" ]]; then
     echo i686-elf
 
@@ -15,8 +15,13 @@ elif [[ $1 == "clean" ]];then
         (cd $PROJECT && $MAKE clean)
     done
 
+elif [[ $1 == "config" ]]; then
+    set -e
+    . ./config.sh
+
 elif [[ $1 == "build" ]]; then
     set -e
+    . ./config.sh
     . ./HelperScripts.sh headers
     for PROJECT in $PROJECTS; do
         (cd $PROJECT && DESTDIR="$SYSROOT" $MAKE install)
@@ -29,7 +34,6 @@ elif [[ $1 == "headers" ]]; then
     for PROJECT in $SYSTEM_HEADER_PROJECTS; do
         (cd $PROJECT && DESTDIR="$SYSROOT" $MAKE install-headers)
     done
-
 
 else
     echo "Error: Unrecognized Parameter passed"

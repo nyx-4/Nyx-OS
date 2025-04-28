@@ -14,9 +14,9 @@ INCLUDEDIR?=$(PREFIX)/include
 LIBDIR?=$(EXEC_PREFIX)/lib
 
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
-CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Iinclude -fno-exceptions -fno-rtti
+CPPFLAGS:=$(CPPFLAGS) -Iinclude -fno-exceptions -fno-rtti
 LIBK_CFLAGS:=$(CFLAGS)
-LIBK_CPPFLAGS:=$(CPPFLAGS) -D__is_libk
+LIBK_CPPFLAGS:=$(CPPFLAGS)
 
 ARCHDIR=arch/$(HOSTARCH)
 
@@ -29,8 +29,8 @@ LIBK_CPPFLAGS:=$(LIBK_CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
 
 FREEOBJS=\
 $(ARCH_FREEOBJS) \
-stdio.o \
-stdlib.o \
+istream.o \
+ostream.o \
 string.o \
 
 HOSTEDOBJS=\
@@ -42,30 +42,23 @@ $(HOSTEDOBJS) \
 
 LIBK_OBJS=$(FREEOBJS:.o=.libk.o)
 
-#BINARIES=libc.a libk.a # Not ready for libc yet.
-BINARIES=libk.a
+BINARIES=libcpp.a
 
 .PHONY: all clean install install-headers install-libs
-.SUFFIXES: .o .libk.o .c .S
+.SUFFIXES: .o .cpp .S
 
 all: $(BINARIES)
 
-libc.a: $(OBJS)
+libcpp.a: $(OBJS)
 	@$(AR) rcs $@ $(OBJS)
 
-libk.a: $(LIBK_OBJS)
-	@$(AR) rcs $@ $(LIBK_OBJS)
-
-.c.o:
+.cpp.o:
 	@$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
-.c.S:
+.cpp.S:
 	@$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
-.c.libk.o:
-	@$(CC) -MD -c $< -o $@ $(LIBK_CFLAGS) $(LIBK_CPPFLAGS)
-
-.S.libk.o:
+.cpp.libcpp.o:
 	@$(CC) -MD -c $< -o $@ $(LIBK_CFLAGS) $(LIBK_CPPFLAGS)
 
 clean:
