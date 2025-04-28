@@ -6,7 +6,4 @@
 extern "C" void kernel_main(void) {
     terminal_initialize();
     printf("Hello, kernel World!\n");
-    putchar(strlen(
-        "hello, this si my long string wiht 68 characters balh kaljd lakjdf "));
-    putchar(68);
 }

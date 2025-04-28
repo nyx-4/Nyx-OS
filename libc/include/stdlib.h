@@ -7,8 +7,10 @@
 extern "C" {
 #endif
 
-__attribute__((__noreturn__))
-void abort(void);
+#define min(x, y) ((x < y) ? x : y)
+#define max(x, y) ((x > y) ? x : y)
+
+__attribute__((__noreturn__)) void abort(void);
 
 #ifdef __cplusplus
 }
