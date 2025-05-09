@@ -1,6 +1,7 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -71,6 +72,13 @@ int printf(const char *format, ...) {
             }
             if (!print(str, len)) return -1;
             written += len;
+        } else if (*format == 'X') {
+            format++;
+            uint32_t hex = (uint32_t)va_arg(parameters, int);
+            while (hex) {
+                putchar("0123456789ABCDEF"[hex & 0xF]);
+                hex /= 16;
+            }
         } else {
             format     = format_begun_at;
             size_t len = strlen(format);

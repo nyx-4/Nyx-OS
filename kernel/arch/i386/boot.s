@@ -33,6 +33,9 @@ _start:
  # Call the global constructors.
  call _init
 
+ # First setup GDT Table.
+ call setupGDT
+
  # Transfer control to the main kernel.
  call kernel_main
 
