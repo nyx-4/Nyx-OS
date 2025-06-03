@@ -1,0 +1,11 @@
+#ifndef _IOSTREAM_
+#define _IOSTREAM_ 1
+
+#include <sys/cdefs.h>
+class ostream {
+  private:
+  public:
+    ostream();
+};
+
+#endif

@@ -1,0 +1,41 @@
+#ifndef _STRING_
+#define _STRING_ 1
+
+#include <stddef.h>
+#include <string.h>
+#include <sys/cdefs.h>
+
+class string {
+  private:
+    char Str[100];
+
+  public:
+    string(const char *str);
+    string(string &str);
+
+    string     &operator=(string str);
+    string      operator+(string str) const;
+    string     &operator+=(string str);
+    string     &operator+=(char ch);
+    string      operator*(int times) const;
+    string     &operator*=(int times);
+    char       &operator[](int idx);
+    const char &operator[](int idx) const;
+
+    // Comparison operators
+    bool operator<=(string str) const;
+    bool operator==(string str) const;
+    bool operator!=(string str) const;
+    bool operator<(string str) const;
+    bool operator>=(string str) const;
+    bool operator>(string str) const;
+
+    operator const char *();
+};
+
+long   strtol(string s);
+string ltostr(long s);
+void   swap(char &a, char &b);
+string strrev(string s);
+
+#endif
