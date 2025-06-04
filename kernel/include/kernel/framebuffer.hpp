@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include <string>
 
+extern "C" void debug(uint32_t);
+
 typedef struct {
     uint32_t vbe_control_info;
     uint32_t vbe_mode_info;
@@ -59,8 +61,7 @@ extern char _binary_fnt_psf_start[];
 
 extern "C" {
 void terminal_initialize(void);
-void terminal_putchar(unsigned short int c, int cx, int cy, uint32_t fg,
-                      uint32_t bg);
+void terminal_putchar(unsigned short int c);
 void terminal_write(const char *data, size_t size);
 void terminal_writestring(const char *data);
 }
@@ -83,8 +84,7 @@ class FBuf {
          bool isValidVBE = false);
     FBuf();
     void terminal_initialize(void);
-    void terminal_putchar(unsigned short int c, int cx, int cy, uint32_t fg,
-                          uint32_t bg);
+    void terminal_putchar(unsigned short int c);
     void terminal_write(const char *data, size_t size);
     void terminal_writestring(const char *data);
     void test();
