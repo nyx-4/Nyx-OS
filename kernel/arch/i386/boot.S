@@ -93,6 +93,9 @@ _start:
     call get_multiboot
     add esp, 8      ; Clean up stack (2 parameters * 4 bytes)
 
+    cli
+    lgdt [GDT_descriptor]
+    call reloadSegments
 
     extern kernel_main
     call kernel_main
@@ -110,6 +113,48 @@ _start:
 .hang:	hlt
     jmp .hang
 .end:
+
+; GDT setup here.
+section .data
+GDT_start:
+GDT_null:
+    dd 0x00000000
+    dd 0x00000000
+GDT_kcode:
+    dd 0x0000FFFF
+    dd 0x00CF9A00
+GDT_kdata:
+    dd 0x0000FFFF
+    dd 0x00CF9200
+GDT_ucode:
+    dd 0x0000FFFF
+    dd 0x00CFFA00
+GDT_udata:
+    dd 0x0000FFFF
+    dd 0x00CFF200
+GDT_tss:
+    dd 0x00000000
+    dd 0x00008900
+GDT_end:
+
+
+GDT_descriptor:
+gdtr dw GDT_end - GDT_start - 1
+     dd GDT_start
+
+reloadSegments:
+   ; Reload CS register containing code selector:
+   jmp   GDT_kcode -  GDT_start:.reload_CS ; 0x08 is a stand-in for your code segment
+.reload_CS:
+   ; Reload data segment registers:
+   mov   AX, GDT_kdata -  GDT_start ; 0x10 is a stand-in for your data segment
+   mov   DS, AX
+   mov   ES, AX
+   mov   FS, AX
+   mov   GS, AX
+   mov   SS, AX
+   ret
+
 
 global debug
 debug:

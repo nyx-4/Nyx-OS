@@ -1,11 +1,15 @@
 #ifndef _IOSTREAM_
 #define _IOSTREAM_ 1
 
+#include <kernel/framebuffer.hpp>
+#include <string>
 #include <sys/cdefs.h>
+
 class ostream {
   private:
   public:
     ostream();
+    ostream operator<<(const char *);
 };
 
 #endif

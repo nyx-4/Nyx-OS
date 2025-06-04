@@ -24,20 +24,20 @@ typedef struct multiboot_elf_section_header_table
     multiboot_elf_section_header_table_t;
 
 typedef struct multiboot_info {
-    /* Multiboot info version number */
+    // Multiboot info version number
     uint32_t flags;
 
-    /* Available memory from BIOS */
+    // Available memory from BIOS
     uint32_t mem_lower;
     uint32_t mem_upper;
 
-    /* "root" partition */
+    // "root" partition
     uint32_t boot_device;
 
-    /* Kernel command line */
+    // Kernel command line
     uint32_t cmdline;
 
-    /* Boot-Module list */
+    // Boot-Module list
     uint32_t mods_count;
     uint32_t mods_addr;
 
@@ -46,24 +46,24 @@ typedef struct multiboot_info {
         multiboot_elf_section_header_table_t elf_sec;
     } u;
 
-    /* Memory Mapping buffer */
+    // Memory Mapping buffer
     uint32_t mmap_length;
     uint32_t mmap_addr;
 
-    /* Drive Info buffer */
+    // Drive Info buffer
     uint32_t drives_length;
     uint32_t drives_addr;
 
-    /* ROM configuration table */
+    // ROM configuration table
     uint32_t config_table;
 
-    /* Boot Loader Name */
+    // Boot Loader Name
     uint32_t boot_loader_name;
 
-    /* APM table */
+    // APM table
     uint32_t apm_table;
 
-    /* Video */
+    // Video
     uint32_t vbe_control_info;
     uint32_t vbe_mode_info;
     uint16_t vbe_mode;
@@ -98,18 +98,18 @@ typedef struct multiboot_info {
 } multiboot_info_t;
 
 typedef struct mmap_info {
-    /* The size of this MemMap */
+    // The size of this MemMap
     uint32_t size;
 
-    /* The base addr of this buffer */
+    // The base addr of this buffer
     uint32_t base_addr_lower;
     uint32_t base_addr_upper;
 
-    /* The length of this buffer */
+    // The length of this buffer
     uint32_t length_lower;
     uint32_t length_upper;
 
-    /* The type of this buffer */
+    // The type of this buffer
 #define MULTIBOOT_MEMORY_AVAILABLE        1
 #define MULTIBOOT_MEMORY_RESERVED         2
 #define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE 3

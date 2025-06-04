@@ -23,21 +23,71 @@ void FBuf::terminal_initialize(void) {
 }
 
 void FBuf::terminal_putchar(unsigned short int ch) {
-    static int      px = 0, py = 0, state = 0;
-    static uint32_t fg = 0xEEEEEE, bg = 0x101010;
-    int             x, y, line, mask;
+    static uint32_t px = 0, py = 0, state = 0, args[5] = {0}, N_args = 0;
+    static uint32_t fg = 0xFFFFFF, bg = 0x000000;
+    uint32_t        x, y, line, mask;
 
     PSF_font *font         = (PSF_font *)_binary_fnt_psf_start;
     int       BytesPerLine = (font->width + 7) / 8;
 
-// define's for state.
+/*              Explanation of ESC (\033)
+ * ANSI Escape Sequences:
+ * Gist: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
+ *
+ *      -- State --
+ * _NOP - Just print ch. Normal behavior.
+ * _ESC - The current ch is \033.
+ * _CSI - Control Sequence Introducer: sequence starting with ESC [
+ * _DCS - Device Control String: sequence starting with ESC P
+ * _OSC - Operating System Command: sequence starting with ESC
+ *
+ *      -- CSI --
+ * Cursor Controls: px and py defines current column and row. Manipulate them.
+ * Erase Functions: Just call dummy functions, I'll implement later.
+ * Colors / Graphics Mode: Use args[] to store args. Hint: fg and bg. Implement:
+ *      - 8-16 Colors, use FBColor(string).
+ *      - 256 Colors, use some function to get 24-bit color.
+ *      - RGB, use FBColor(uint8_t, uint8_t, uint_8)
+ *
+ * Tips:
+ * - The escape seq for RGB color is`ESC[38;2;{r};{g};{b}m`
+ *      Store args[] = { 38, 2, R, G, B }
+ * - *Remember* to clear args, when done with them
+ *
+ */
+
+// #define's for state. Define more if needed.
 #define _NOP 0
 #define _ESC 1
 #define _CSI 2
 #define _DCS 3
 #define _OSC 4
     // Check state, continue if _NOP
-    if (state != _NOP) { return; }
+    if (state != _NOP) {
+        if (state == _ESC) switch (ch) {
+                case '[': state = _CSI; return;
+                case 'P': state = _DCS; return;
+                case ']': state = _OSC; return;
+                default: state = _NOP;
+            }
+        // An example of how to implement \033.
+        if (state == _CSI) {
+            if (ch >= '0' && ch <= '9')
+                args[N_args] = args[N_args] * 10 + ch - '0';
+            else if (ch == ';')
+                N_args++;
+            else if (ch == 'H' && N_args == 0)
+                state = px = py = 0;
+            else if (ch == 'H' && N_args == 1) {
+                py    = args[0];
+                px    = args[1];
+                state = args[0] = args[1] = N_args = 0;
+            } else if (ch == 'H')
+                state = args[0] = args[1] = N_args = 0;
+        }
+        // Return, because ch is handled.
+        return;
+    }
 
     switch (ch) {
         case '\n':
@@ -49,6 +99,7 @@ void FBuf::terminal_putchar(unsigned short int ch) {
         case '\r': px = 0; return;
         case '\v': py++; return;
         case '\033': state = _ESC; return;
+        default: break;
     }
 
     // else Print this character
@@ -107,7 +158,7 @@ void FBuf::terminal_putchar(unsigned short int ch) {
 }
 
 void FBuf::terminal_write(const char *data, size_t size) {
-    for (int i = 0; i < size; i++) terminal_putchar(data[i]);
+    for (size_t i = 0; i < size; i++) terminal_putchar(data[i]);
 }
 
 void FBuf::terminal_writestring(const char *data) {
@@ -117,7 +168,6 @@ void FBuf::terminal_writestring(const char *data) {
 void FBuf::test() {
     if (fb_info.framebuffer_bpp == 32 && fb_info.framebuffer_type == 1) {
         // Fill the screen with red
-        uint32_t color = 0xFF0000;
         for (uint32_t y = 0; y < fb_info.framebuffer_height; y++) {
             for (uint32_t x = 0; x < fb_info.framebuffer_width; x++) {
                 uint32_t *fb = (uint32_t *)fb_info.framebuffer_addr_lower;
@@ -145,6 +195,14 @@ void terminal_writestring(const char *data) {
     fb.terminal_writestring(data);
 }
 
-int32_t FBColor(string color) { return 0x000000; }
+int32_t FBColor(string color) {
+    if (color == "white") return FBColor(0xFFFFFF);
+    if (color == "black") return FBColor(0x000000);
+    return 0x000000;
+}
+
 int32_t FBColor(uint32_t color) { return color; }
-int32_t FBColor(uint8_t Red, uint32_t Green, uint32_t Blue) { return 0x000000; }
+
+int32_t FBColor(uint8_t Red, uint8_t Green, uint8_t Blue) {
+    return FBColor(Red << 16 | Green << 8 | Blue);
+}
