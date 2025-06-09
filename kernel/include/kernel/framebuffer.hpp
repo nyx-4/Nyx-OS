@@ -64,10 +64,13 @@ void terminal_initialize(void);
 void terminal_putchar(unsigned short int c);
 void terminal_write(const char *data, size_t size);
 void terminal_writestring(const char *data);
+void terminal_writeint(int32_t num);
+void terminal_writeuint(uint32_t num);
+void terminal_writehex(uint32_t num);
 }
 
 // For common colors, like Blue and Magenta.
-int32_t FBColor(string color);
+int32_t FBColor(std::string color);
 // To convert 24-bit color to currently-loaded color-depth
 int32_t FBColor(uint32_t color);
 // To convert RGB value to currently-loaded color-depth.
@@ -83,11 +86,14 @@ class FBuf {
     FBuf(video_info_t framebuffer_info, bool isValidFB = false,
          bool isValidVBE = false);
     FBuf();
-    void terminal_initialize(void);
-    void terminal_putchar(unsigned short int c);
-    void terminal_write(const char *data, size_t size);
-    void terminal_writestring(const char *data);
-    void test();
+    static void terminal_initialize(void);
+    static void terminal_putchar(unsigned short int c);
+    static void terminal_write(const char *data, size_t size);
+    static void terminal_writestring(const char *data);
+    static void terminal_writeint(int32_t num);
+    static void terminal_writeuint(uint32_t num);
+    static void terminal_writehex(uint32_t num);
+    static void test();
 };
 
 #endif

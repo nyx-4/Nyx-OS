@@ -83,7 +83,8 @@ _start:
     ; aligned above and we've since pushed a multiple of 16 bytes to the
     ; stack since (pushed 0 bytes so far) and the alignment is thus
     ; preserved and the call is well defined.
-    ; note, that if you are building on Windows, C functions may have "_" prefix in assembly: _kernel_main
+    ; note, that if you are building on Windows, C functions
+    ; may have "_" prefix in assembly: _kernel_main
 
 
     ; This will setup multiboot info.
@@ -93,9 +94,11 @@ _start:
     call get_multiboot
     add esp, 8      ; Clean up stack (2 parameters * 4 bytes)
 
-    cli
-    lgdt [GDT_descriptor]
-    call reloadSegments
+    cli                     ; Clear Interrupts
+    lgdt [GDT_descriptor]   ; Load GDT
+    call reloadSegments     ; reload Segments to apply GDT
+    extern idt_init
+    call idt_init           ; Initialize default interrupts
 
     extern kernel_main
     call kernel_main
@@ -114,7 +117,64 @@ _start:
     jmp .hang
 .end:
 
+
+; Handle syscalls
+global syscall_dispatcher
+syscall_dispatcher:
+    MAX_SYSCALLS equ 2
+    cmp eax, MAX_SYSCALLS - 1
+    ja invalid_syscall      ; invalid_syscall number, so skip and return
+
+    ; Save all registers, in stack
+    push eax
+    push gs
+    push fs
+    push es
+    push ds
+    push ebp
+    push edi
+    push esi
+    push edx
+    push ecx
+    push ebx
+    push esp
+
+    extern syscalls
+    call [syscalls + eax*4] ; Call the respective syscall
+    add esp, 4
+
+    ; Restore all registers, from stack
+    pop ebx
+    pop ecx
+    pop edx
+    pop esi
+    pop edi
+    pop ebp
+    pop ds
+    pop es
+    pop fs
+    pop gs
+
+    add esp, 4
+    iretd
+
+invalid_syscall:
+    iretd
+
 ; GDT setup here.
+reloadSegments:
+   ; Reload CS register containing code selector:
+   jmp   GDT_kcode -  GDT_start:.reload_CS ; 0x08 is a stand-in for your code segment
+.reload_CS:
+   ; Reload data segment registers:
+   mov   AX, GDT_kdata -  GDT_start ; 0x10 is a stand-in for your data segment
+   mov   DS, AX
+   mov   ES, AX
+   mov   FS, AX
+   mov   GS, AX
+   mov   SS, AX
+   ret
+
 section .data
 GDT_start:
 GDT_null:
@@ -137,26 +197,12 @@ GDT_tss:
     dd 0x00008900
 GDT_end:
 
-
 GDT_descriptor:
 gdtr dw GDT_end - GDT_start - 1
      dd GDT_start
-
-reloadSegments:
-   ; Reload CS register containing code selector:
-   jmp   GDT_kcode -  GDT_start:.reload_CS ; 0x08 is a stand-in for your code segment
-.reload_CS:
-   ; Reload data segment registers:
-   mov   AX, GDT_kdata -  GDT_start ; 0x10 is a stand-in for your data segment
-   mov   DS, AX
-   mov   ES, AX
-   mov   FS, AX
-   mov   GS, AX
-   mov   SS, AX
-   ret
-
 
 global debug
 debug:
     mov ecx, [esp + 4]
     hlt
+    ret

@@ -33,6 +33,9 @@ kernel/kernel.o \
 kernel/multiboot.o \
 kernel/framebuffer.o \
 kernel/memory.o \
+kernel/interrupts.o \
+kernel/syscalls.o \
+kernel/PS2_keyboard.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
@@ -69,7 +72,10 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 .S.o:
-	$(AS) -felf32 $< -o $@
+	$(AS) -felf32 -w+orphan-labels $< -o $@
+kernel/interrupts.o: kernel/interrupts.cpp
+	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS) -mgeneral-regs-only
+
 
 $(ARCHDIR)/fnt.o:
 	cd $(ARCHDIR) && i686-elf-objcopy -O elf32-i386 -B i386 -I binary fnt.psf fnt.o

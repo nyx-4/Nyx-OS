@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <sys/cdefs.h>
-
+namespace std {
 class string {
   private:
     char Str[100];
@@ -13,9 +13,9 @@ class string {
     string(const char *str);
     string(string &str);
 
-    string     &operator=(string str);
-    string      operator+(string str) const;
-    string     &operator+=(string str);
+    string     &operator=(std::string str);
+    string      operator+(std::string str) const;
+    string     &operator+=(std::string str);
     string     &operator+=(char ch);
     string      operator*(int times) const;
     string     &operator*=(int times);
@@ -30,12 +30,21 @@ class string {
     bool operator>=(string str) const;
     bool operator>(string str) const;
 
+    // Comparison operators
+    bool operator<=(const char *str) const;
+    bool operator==(const char *str) const;
+    bool operator!=(const char *str) const;
+    bool operator<(const char *str) const;
+    bool operator>=(const char *str) const;
+    bool operator>(const char *str) const;
+
     operator const char *();
 };
+} // namespace std
 
-long   strtol(string s);
-string ltostr(long s);
-void   swap(char &a, char &b);
-string strrev(string s);
+long        strtol(std::string s);
+std::string ltostr(long s);
+void        swap(char &a, char &b);
+std::string strrev(std::string s);
 
 #endif

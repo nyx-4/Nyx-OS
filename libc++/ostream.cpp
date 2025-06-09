@@ -1,4 +1,7 @@
 #include <iostream>
 
-ostream::ostream() { }
-ostream ostream::operator<<(const char *str) { terminal_writestring(str); }
+std::ostream::ostream() { }
+std::ostream std::ostream::operator<<(const char *str) {
+    FBuf::terminal_writestring(str);
+    return *this;
+}

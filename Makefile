@@ -2,7 +2,9 @@
 compile:
 	./HelperScripts.sh build
 run: iso
-	qemu-system-i386 -cdrom NyxOS.iso -vga std -m 128M -display gtk,show-menubar=off	
+	qemu-system-i386 -cdrom NyxOS.iso -vga std -m 128M -display gtk,show-menubar=off
+debug: iso
+	qemu-system-i386 -cdrom NyxOS.iso -vga std -m 128M -display gtk,show-menubar=off -s -S
 iso: compile
 	@mkdir -p isodir/boot/
 	cp sysroot/boot/NyxOS.kernel isodir/boot/NyxOS.kernel

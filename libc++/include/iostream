@@ -4,12 +4,13 @@
 #include <kernel/framebuffer.hpp>
 #include <string>
 #include <sys/cdefs.h>
-
+namespace std {
 class ostream {
   private:
   public:
     ostream();
     ostream operator<<(const char *);
 };
+} // namespace std
 
 #endif

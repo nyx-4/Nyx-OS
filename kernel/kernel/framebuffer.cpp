@@ -165,6 +165,11 @@ void FBuf::terminal_writestring(const char *data) {
     terminal_write(data, strlen(data));
 }
 
+void FBuf::terminal_writehex(uint32_t num) {
+    for (int32_t i = 7; i >= 0; i--)
+        terminal_putchar("0123456789ABCDEF"[(num >> (4 * i)) & 0xF]);
+}
+
 void FBuf::test() {
     if (fb_info.framebuffer_bpp == 32 && fb_info.framebuffer_type == 1) {
         // Fill the screen with red
@@ -178,24 +183,23 @@ void FBuf::test() {
     }
 }
 
-void terminal_initialize(void) {
-    FBuf fb;
-    fb.terminal_initialize();
-}
-void terminal_putchar(unsigned short int c) {
-    FBuf fb;
-    fb.terminal_putchar(c);
-}
+void terminal_initialize(void) { FBuf::terminal_initialize(); }
+void terminal_putchar(unsigned short int c) { FBuf::terminal_putchar(c); }
 void terminal_write(const char *data, size_t size) {
-    FBuf fb;
-    fb.terminal_write(data, size);
+    FBuf::terminal_write(data, size);
 }
 void terminal_writestring(const char *data) {
-    FBuf fb;
-    fb.terminal_writestring(data);
+    FBuf::terminal_writestring(data);
 }
+// void terminal_writeint(int32_t num) {
+//     FBuf::terminal_writeint(num);
+// }
+// void terminal_writeuint(uint32_t num) {
+//     FBuf::terminal_writeuint(num);
+// }
+void terminal_writehex(uint32_t num) { FBuf::terminal_writehex(num); }
 
-int32_t FBColor(string color) {
+int32_t FBColor(std::string color) {
     if (color == "white") return FBColor(0xFFFFFF);
     if (color == "black") return FBColor(0x000000);
     return 0x000000;
