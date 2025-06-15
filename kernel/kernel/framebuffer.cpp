@@ -84,6 +84,30 @@ void FBuf::terminal_putchar(unsigned short int ch) {
                 state = args[0] = args[1] = N_args = 0;
             } else if (ch == 'H')
                 state = args[0] = args[1] = N_args = 0;
+            else if (ch == 'm' && N_args == 0) {
+                switch (args[0]) {
+                    case 30: fg = 0x000000; break;
+                    case 31: fg = 0xFF0000; break;
+                    case 32: fg = 0x00FF00; break;
+                    case 33: fg = 0xFFFF00; break;
+                    case 34: fg = 0x0000FF; break;
+                    case 35: fg = 0xFF00FF; break;
+                    case 36: fg = 0x00FFFF; break;
+                    case 37: fg = 0xFFFFFF; break;
+                    case 39: fg = 0xFFFFFF; break;
+                    case 40: bg = 0x000000; break;
+                    case 41: bg = 0xFF0000; break;
+                    case 42: bg = 0x00FF00; break;
+                    case 43: bg = 0xFFFF00; break;
+                    case 44: bg = 0x0000FF; break;
+                    case 45: bg = 0xFF00FF; break;
+                    case 46: bg = 0x00FFFF; break;
+                    case 47: bg = 0xFFFFFF; break;
+                    case 49: bg = 0xFFFFFF; break;
+                }
+                state = args[0] = N_args = 0;
+                return;
+            }
         }
         // Return, because ch is handled.
         return;
@@ -94,8 +118,12 @@ void FBuf::terminal_putchar(unsigned short int ch) {
             py++;
             px = 0;
             return;
+        case '\b':
+            px--;
+            terminal_putchar(' ');
+            px--;
+            return;
         case '\t': px = (px / 4 + 1) * 4; return;
-        case '\b': px--; return;
         case '\r': px = 0; return;
         case '\v': py++; return;
         case '\033': state = _ESC; return;
@@ -199,14 +227,26 @@ void terminal_writestring(const char *data) {
 // }
 void terminal_writehex(uint32_t num) { FBuf::terminal_writehex(num); }
 
-int32_t FBColor(std::string color) {
+int32_t FBuf::FBColor(std::string color) {
     if (color == "white") return FBColor(0xFFFFFF);
     if (color == "black") return FBColor(0x000000);
     return 0x000000;
 }
 
-int32_t FBColor(uint32_t color) { return color; }
+int32_t FBuf::FBColor(uint32_t color) {
+    switch (fb_info.framebuffer_bpp) {
+        case 24: return color;
+        case 32: return color << 8;
+        default: return color;
+    }
+}
 
-int32_t FBColor(uint8_t Red, uint8_t Green, uint8_t Blue) {
+int32_t FBuf::FBColor(uint8_t Red, uint8_t Green, uint8_t Blue) {
     return FBColor(Red << 16 | Green << 8 | Blue);
+}
+
+int32_t FBColor(std::string color) { return FBuf::FBColor(color); }
+int32_t FBColor(uint32_t color) { return FBuf::FBColor(color); }
+int32_t FBColor(uint8_t Red, uint8_t Green, uint8_t Blue) {
+    return FBuf::FBColor(Red, Green, Blue);
 }

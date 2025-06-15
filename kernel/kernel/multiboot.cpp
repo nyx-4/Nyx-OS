@@ -65,5 +65,4 @@ Multiboot::Multiboot(uint32_t magic, multiboot_info_t *mbi) {
 
     // Load this information in Framebuffer.
     FBuf fb(fb_info, mbi->flags & (1 << 12), mbi->flags & (1 << 11));
-    fb.test();
 }

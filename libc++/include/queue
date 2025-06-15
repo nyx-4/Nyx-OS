@@ -5,17 +5,30 @@
 namespace std {
 template <class T> class queue {
   private:
-    T      Queue[1000];
-    size_t start = 0, end = 0;
+    T       Queue[1000];
+    size_t  max_size = 1000;
+    int32_t start = 0, end = 0;
 
   public:
     queue() : start(0), end(0) { }
-    void   push(T value) { Queue[end++] = value; }
-    T      pop() { return Queue[start++]; }
+    void push(T value) {
+        Queue[end++] = value;
+        if (end == max_size) end = 0;
+    }
+    T pop() {
+        if (start == max_size - 1) {
+            start = 0;
+            return Queue[max_size - 1];
+        }
+        return Queue[start++];
+    }
     bool   empty() { return start == end; }
-    size_t size() { return end - start; }
-    T     &front() { return Queue[start]; }
-    T     &back() { return Queue[end]; }
+    size_t size() {
+        if (end < start) return (end - start + max_size);
+        return (end - start + 1);
+    }
+    T &front() { return Queue[start]; }
+    T &back() { return Queue[end]; }
 };
 } // namespace std
 
