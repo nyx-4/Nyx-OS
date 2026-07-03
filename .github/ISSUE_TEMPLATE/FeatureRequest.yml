@@ -19,13 +19,13 @@ body:
 
   - type: textarea
     attributes:
-      label: "Describe the solution you’d like"
+      label: "Describe the solution you'd like"
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: "Describe any alternatives you’ve considered"
+      label: "Describe any alternatives you've considered"
       description: |
         Can Nyx-OS already do this, but in a less convenient way?
         How else you might be able to do using Nyx-OS?

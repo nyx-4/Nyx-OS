@@ -1,0 +1,53 @@
+---
+Checks: >-
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  portability-*,
+
+  -bugprone-easily-swappable-parameters,
+  -modernize-use-nodiscard,
+  -readability-braces-around-statements,
+
+
+WarningsAsErrors: >-
+  clang-analyzer-core.*,
+  clang-analyzer-cplusplus.*,
+  clang-analyzer-security.*,
+  clang-analyzer-unix.*,
+  performance-move-const-arg,
+  performance-unnecessary-value-param,
+  readability-duplicate-include,
+
+HeaderFileExtensions:
+  - ''
+  - h
+  - hh
+  - hpp
+  - hxx
+ImplementationFileExtensions:
+  - c
+  - cc
+  - cpp
+  - cxx
+HeaderFilterRegex: '.*\.(c|cxx|cpp)$'
+ExcludeHeaderFilterRegex: ''
+FormatStyle:     none
+User:            Nyx4
+CheckOptions:
+  readability-identifier-naming.ConstantCase: UPPER_CASE
+  readability-identifier-naming.ClassConstantCase: UPPER_CASE
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.ClassMethodCase: lower_case
+  readability-identifier-naming.ClassMemberCase: lower_case
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.VariableCase: lower_case
+  readability-function-size.StatementThreshold: 42
+  readability-function-size.NestingThreshold: 5
+SystemHeaders:   false
+...
