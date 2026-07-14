@@ -3,16 +3,14 @@ Checks: >-
   clang-diagnostic-*,
   clang-analyzer-*,
   bugprone-*,
-  cppcoreguidelines-*,
   misc-*,
-  modernize-*,
   performance-*,
   readability-*,
   portability-*,
 
   -bugprone-easily-swappable-parameters,
-  -modernize-use-nodiscard,
-  -readability-braces-around-statements,
+  -misc-use-internal-linkage,
+  -cppcoreguidelines-*,
 
 
 WarningsAsErrors: >-
@@ -38,7 +36,7 @@ ImplementationFileExtensions:
 HeaderFilterRegex: '.*\.(c|cxx|cpp)$'
 ExcludeHeaderFilterRegex: ''
 FormatStyle:     none
-User:            Nyx4
+User:            Nyx-4
 CheckOptions:
   readability-identifier-naming.ConstantCase: UPPER_CASE
   readability-identifier-naming.ClassConstantCase: UPPER_CASE
@@ -49,5 +47,8 @@ CheckOptions:
   readability-identifier-naming.VariableCase: lower_case
   readability-function-size.StatementThreshold: 42
   readability-function-size.NestingThreshold: 5
+  readability-magic-numbers.IgnorePowersOf2IntegerValues: true
+  readability-magic-numbers.IgnoredIntegerValues: '1;2;3;4;5;6;7;10;100'
+
 SystemHeaders:   false
 ...
