@@ -1,26 +1,21 @@
-DEFAULT_HOST!=../HelperScripts.sh default-host
-HOST?=DEFAULT_HOST
-HOSTARCH!=../HelperScripts.sh target-triplet $(HOST)
+# To cross-compile NyxOS: make HOST=i386-elf SYSROOT=../sysroot
+# By default the build system will assume it's running on NyxOS.
+
+include ../build-aux/common.mk
 
 CFLAGS?=-O2 -g
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
 
-DESTDIR?=
-PREFIX?=/usr/local
-EXEC_PREFIX?=$(PREFIX)
-BOOTDIR?=$(EXEC_PREFIX)/boot
-INCLUDEDIR?=$(PREFIX)/include
-
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
-CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude -fno-exceptions -fno-rtti
+CPPFLAGS:=$(CPPFLAGS) -D__is_kernel -Iinclude
 LDFLAGS:=$(LDFLAGS)
 LIBS:=$(LIBS) -nostdlib -lk -lgcc
 
 ARCHDIR=arch/$(HOSTARCH)
 
-include $(ARCHDIR)/make.config
+-include $(ARCHDIR)/arch.mk
 
 CFLAGS:=$(CFLAGS) $(KERNEL_ARCH_CFLAGS)
 CPPFLAGS:=$(CPPFLAGS) $(KERNEL_ARCH_CPPFLAGS)
@@ -47,14 +42,15 @@ LINK_LIST=\
 	$(ARCHDIR)/crtend.o \
 	$(ARCHDIR)/crtn.o \
 
-.PHONY: all clean install install-headers install-kernel
+
 .SUFFIXES: .o .c .S .asm
 
-all: NyxOS.kernel
+.PHONY: all
+all: NyxOS
 
-NyxOS.kernel: $(OBJS) $(ARCHDIR)/linker.ld
+NyxOS: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	grub-file --is-x86-multiboot NyxOS.kernel
+	grub-file --is-x86-multiboot2 NyxOS
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
@@ -68,19 +64,28 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 .asm.o:
 	$(AS) -felf32 $< -o $@
 
-clean:
-	rm -f NyxOS.kernel
-	rm -f $(OBJS) *.o */*.o */*/*.o
-	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
 
+.PHONY: install
 install: install-headers install-kernel
 
+.PHONY: install-headers
 install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: NyxOS.kernel
+.PHONY: install-kernel
+install-kernel: NyxOS
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp NyxOS.kernel $(DESTDIR)$(BOOTDIR)
+	cp NyxOS $(DESTDIR)$(BOOTDIR)
+
+
+.PHONY: clean
+clean:
+	rm -f NyxOS
+	find . -name "*.o" -delete
+	find . -name "*.d" -delete
+
+.PHONY: distclean
+distclean: clean
 
 -include $(OBJS:.o=.d)

@@ -1,26 +1,21 @@
-DEFAULT_HOST!=../HelperScripts.sh default-host
-HOST?=DEFAULT_HOST
-HOSTARCH!=../HelperScripts.sh target-triplet $(HOST)
+# To cross-compile NyxOS: make HOST=i386-elf SYSROOT=../sysroot
+# By default the build system will assume it's running on NyxOS.
+
+include ../build-aux/common.mk
 
 CFLAGS?=-O2 -g
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
 
-DESTDIR?=
-PREFIX?=/usr/local
-EXEC_PREFIX?=$(PREFIX)
-INCLUDEDIR?=$(PREFIX)/include
-LIBDIR?=$(EXEC_PREFIX)/lib
-
 CFLAGS:=$(CFLAGS) -ffreestanding -Wall -Wextra
-CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Iinclude -fno-exceptions
+CPPFLAGS:=$(CPPFLAGS) -D__is_libc -Iinclude
 LIBK_CFLAGS:=$(CFLAGS)
 LIBK_CPPFLAGS:=$(CPPFLAGS) -D__is_libk
 
 ARCHDIR=arch/$(HOSTARCH)
 
-include $(ARCHDIR)/make.config
+-include $(ARCHDIR)/arch.mk
 
 CFLAGS:=$(CFLAGS) $(ARCH_CFLAGS)
 CPPFLAGS:=$(CPPFLAGS) $(ARCH_CPPFLAGS)
@@ -34,20 +29,20 @@ FREEOBJS=\
 	string.o \
 
 HOSTEDOBJS=\
-$(ARCH_HOSTEDOBJS) \
+	$(ARCH_HOSTEDOBJS) \
 
 OBJS=\
-$(FREEOBJS) \
-$(HOSTEDOBJS) \
+	$(FREEOBJS) \
+	$(HOSTEDOBJS) \
 
 LIBK_OBJS=$(FREEOBJS:.o=.libk.o)
 
 #BINARIES=libc.a libk.a # Not ready for libc yet.
 BINARIES=libk.a
 
-.PHONY: all clean install install-headers install-libs
 .SUFFIXES: .o .libk.o .c .S
 
+.PHONY: all
 all: $(BINARIES)
 
 libc.a: $(OBJS)
@@ -68,17 +63,25 @@ libk.a: $(LIBK_OBJS)
 .S.libk.o:
 	$(CC) -MD -c $< -o $@ $(LIBK_CFLAGS) $(LIBK_CPPFLAGS)
 
-clean:
-	rm -f $(BINARIES) *.a
-	rm -f $(OBJS) $(LIBK_OBJS) *.o */*.o */*/*.o
-	rm -f $(OBJS:.o=.d) $(LIBK_OBJS:.o=.d) *.d */*.d */*/*.d
+.PHONY: distclean
+distclean: clean
 
+.PHONY: clean
+clean:
+	rm -f $(BINARIES)
+	find . -name "*.a" -delete
+	find . -name "*.d" -delete
+	find . -name "*.o" -delete
+
+.PHONY: install
 install: install-headers install-libs
 
+.PHONY: install-headers
 install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 
+.PHONY: install-libs
 install-libs: $(BINARIES)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	cp $(BINARIES) $(DESTDIR)$(LIBDIR)
