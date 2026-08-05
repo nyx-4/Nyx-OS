@@ -10,6 +10,7 @@ Checks: >-
 
   -bugprone-easily-swappable-parameters,
   -misc-use-internal-linkage,
+  -performance-no-int-to-ptr,
   -cppcoreguidelines-*,
 
 
@@ -40,7 +41,7 @@ User:            Nyx-4
 CheckOptions:
   readability-identifier-naming.ConstantCase: UPPER_CASE
   readability-identifier-naming.ClassConstantCase: UPPER_CASE
-  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.ClassCase: lower_case
   readability-identifier-naming.ClassMethodCase: lower_case
   readability-identifier-naming.ClassMemberCase: lower_case
   readability-identifier-naming.FunctionCase: lower_case

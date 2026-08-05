@@ -8,8 +8,8 @@ ifndef SYSROOT
 endif
 
 QEMU?=qemu-system-$(HOSTARCH)
-# QEMU_ENABLE_KVM?=-enable-kvm
-QEMU_OPTIONS?=-vga std -m 128M -display gtk,show-menubar=off
+QEMU_ENABLE_KVM?=-enable-kvm
+QEMU_OPTIONS?=
 
 MODULES=\
 	libc   \

@@ -87,10 +87,22 @@ section .text
 global _start:function (_start.end - _start)
 _start:
     mov esp, stack_top
+    sub esp, 8 ; 16-byte align stack for call
 
-    extern kmain
-    call kmain
+    ; debug
+    push ebx
+    push eax
 
+    ; call _init
+
+    ; run global constructors
+    ; TODO
+
+    ; execute the kernel
+    extern kernel_early
+    call kernel_early
+
+    ; hang if the kernel returns (which it shouldn't)
     cli
 .hang:  hlt
     jmp .hang
