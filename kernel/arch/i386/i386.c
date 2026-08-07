@@ -17,6 +17,16 @@ struct vga  vga;
 struct ttyS ttyS1_tty;
 struct vt   tty1_tty;
 
+typedef void initfunc_t(void);
+extern initfunc_t *__init_array_start[], *__init_array_end[];  // NOLINT
+
+static void handle_init_array(void) {
+    for (initfunc_t **ptr = __init_array_start; ptr != __init_array_end;
+         ptr++) {
+        (*ptr)();
+    }
+}
+
 void kernel_early(uint32_t magic, struct multiboot2_info *multiboot2) {
     // Verify the multiboot2 magic number.
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
@@ -72,6 +82,8 @@ void kernel_early(uint32_t magic, struct multiboot2_info *multiboot2) {
     } else {  // --console=tty1 is default
         dev_console = tty1;
     }
+
+    handle_init_array();  // handle global constructors
 
     // Run the main kernel.
     kernel_main();

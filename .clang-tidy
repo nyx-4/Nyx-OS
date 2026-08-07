@@ -46,10 +46,17 @@ CheckOptions:
   readability-identifier-naming.ClassMemberCase: lower_case
   readability-identifier-naming.FunctionCase: lower_case
   readability-identifier-naming.VariableCase: lower_case
+#   Ignore some specific names
+  readability-identifier-naming.ConstantIgnoredRegexp: ^ttyS_ops$|^vt_ops$|^fb_ops$|^vga_ops$
+  readability-identifier-naming.ClassIgnoredRegexp: ^ttyS$
+  readability-identifier-naming.FunctionIgnoredRegexp: ^ttyS_.*$
+  readability-identifier-naming.VariableIgnoredRegexp: ^ttyS1_tty$|^ttyS0$
+
   readability-function-size.StatementThreshold: 42
   readability-function-size.NestingThreshold: 5
   readability-magic-numbers.IgnorePowersOf2IntegerValues: true
   readability-magic-numbers.IgnoredIntegerValues: '1;2;3;4;5;6;7;10;100'
-
+  readability-identifier-length.IgnoredVariableNames: ^fb$|^ws$
+  readability-identifier-length.IgnoredParameterNames: ^fb$|^ws$
 SystemHeaders:   false
 ...

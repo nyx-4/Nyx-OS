@@ -42,9 +42,10 @@ static void fb_render(struct fb *self, unsigned short col, unsigned short row) {
     for (size_t p_y = 0; p_y < FONT_HEIGHT; p_y++) {
         // TODO: Black magic here; can't understand the logic
         size_t    buffer_pitch = self->pitch / sizeof(self->buffer[0]);
-        uint32_t *data         = self->buffer +
-                                 (buffer_pitch * ((FONT_HEIGHT * row) + p_y)) +
-                                 (col * FONT_WIDTH);
+        uint32_t *data =
+            self->buffer +
+            (buffer_pitch * ((ptrdiff_t)(FONT_HEIGHT * row) + p_y)) +
+            (ptrdiff_t)(col * FONT_WIDTH);
 
         uint8_t line_bitmap = charfont[p_y];
 
@@ -54,7 +55,7 @@ static void fb_render(struct fb *self, unsigned short col, unsigned short row) {
 
         const unsigned char BOX_START = 0xB0;
         const unsigned char BOX_END   = 0xDF;
-        int is_box_chr = BOX_START <= s_chr->chr && s_chr->chr <= BOX_END;
+        int is_box_chr                = between(BOX_START, s_chr->chr, BOX_END);
 
         // Repeat the 8th column as the 9th column, except for the
         // Box-drawing characters in Code Page 437.
@@ -76,7 +77,7 @@ static void fb_tcgetwinsize(struct screen *base, struct winsize *ws) {
 
 static void fb_clear(struct screen *base, const struct screen_char *fill) {
     struct fb *self = container_of(base, struct fb, base);
-    memset(self->buffer, 0, self->pitch * self->height);
+    memset(self->buffer, 0, (size_t)self->pitch * self->height);
     for (size_t p_y = 0; p_y < self->rows; p_y++) {
         for (size_t p_x = 0; p_x < self->columns; p_x++) {
             self->grid[(p_y * MAX_COLUMNS) + p_x] = *fill;

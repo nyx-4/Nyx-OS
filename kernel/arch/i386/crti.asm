@@ -8,6 +8,7 @@ _init:
 
 section .fini
 global _fini
+
 _fini:
     push ebp
     mov ebp, esp

@@ -1,6 +1,7 @@
 #ifndef _KERNEL_VT_H
 #define _KERNEL_VT_H
 
+#include <math.h>
 #include <stdint.h>
 
 #include <kernel/tty.h>

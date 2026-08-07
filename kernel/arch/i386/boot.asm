@@ -93,11 +93,6 @@ _start:
     push ebx
     push eax
 
-    ; call _init
-
-    ; run global constructors
-    ; TODO
-
     ; execute the kernel
     extern kernel_early
     call kernel_early

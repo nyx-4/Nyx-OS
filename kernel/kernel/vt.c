@@ -1,4 +1,5 @@
 #include "abi/winsize.h"
+#include <stdint.h>
 #include <string.h>
 
 #include <kernel/kernel.h>
@@ -75,8 +76,13 @@ static void vt_nextline(struct vt *self) {
     }
 }
 
+// NOLINTBEGIN(readability-magic-numbers)
+uint8_t vga_color(uint8_t fore, uint8_t back) {
+    return (fore & 0x0F) | (back & 0xF0);
+}
+
 // Execute an ANSI escape sequence command.
-static void vt_run_ansi(struct vt *self, unsigned char chr) {
+static void vt_run_ansi(struct vt *self, unsigned char chr) {  // NOLINT
     switch (chr) {
     case 'm':
         if (self->ansi_count == 0) {
@@ -91,45 +97,35 @@ static void vt_run_ansi(struct vt *self, unsigned char chr) {
                 self->fgcolor  = PALETTE[DEFAULT_FOREGROUND];
                 self->bgcolor  = PALETTE[DEFAULT_BACKGROUND];
 
-            } else if (30 <= cmd && cmd <= 37) {  // set text color
-                unsigned int value = cmd - 30;
-                self->fgcolor      = PALETTE[value];
-
-                self->vgacolor &= 0xF0;  // remove fore color and
-                self->vgacolor |= ANSI_TO_VGA[value] << 0;  // set new fore
+            } else if (between(30, cmd, 37)) {  // set text color
+                self->fgcolor = PALETTE[cmd - 30];
+                self->vgacolor =
+                    vga_color(ANSI_TO_VGA[cmd - 30], self->vgacolor);
 
             } else if (cmd == 39) {  // set default text color
-                self->fgcolor = PALETTE[DEFAULT_FOREGROUND];
+                self->fgcolor  = PALETTE[DEFAULT_FOREGROUND];
+                self->vgacolor = vga_color(DEFAULT_VGACOLOR, self->vgacolor);
 
-                self->vgacolor &= 0xF0;  // remove fore color and
-                self->vgacolor |= DEFAULT_VGACOLOR & 0x0F;  // set new fore
-
-            } else if (40 <= cmd && cmd <= 47) {  // set back color
-                unsigned int value = cmd - 40;
-                self->bgcolor      = PALETTE[value];
-
-                self->vgacolor &= 0x0F;  // remove back color and
-                self->vgacolor |= ANSI_TO_VGA[value] << 4;  // set new back
+            } else if (between(40, cmd, 47)) {  // set back color
+                self->bgcolor = PALETTE[cmd - 40];
+                self->vgacolor =
+                    vga_color(self->vgacolor, ANSI_TO_VGA[cmd - 40] << 4);
 
             } else if (cmd == 49) {  // set default back color
-                self->bgcolor = PALETTE[DEFAULT_BACKGROUND];
+                self->bgcolor  = PALETTE[DEFAULT_BACKGROUND];
+                self->vgacolor = vga_color(self->vgacolor, DEFAULT_VGACOLOR);
 
-                self->vgacolor &= 0x0F;  // remove back color and
-                self->vgacolor |= DEFAULT_VGACOLOR & 0xF0;  // set new back
+            } else if (between(90, cmd, 97)) {  // Set text color.
+                self->fgcolor = PALETTE[cmd - 90 + 8];
 
-            } else if (90 <= cmd && cmd <= 97) {  // Set text color.
-                unsigned int value = cmd - 90 + 8;
-                self->fgcolor      = PALETTE[value];
+                self->vgacolor =
+                    vga_color(0x8 | ANSI_TO_VGA[cmd - 90], self->vgacolor);
 
-                self->vgacolor &= 0xF0;
-                self->vgacolor |= (0x8 | ANSI_TO_VGA[value - 8]) << 0;
+            } else if (between(100, cmd, 107)) {  // Set background color.
+                self->bgcolor  = PALETTE[cmd - 100 + 8];
+                self->vgacolor = vga_color(self->vgacolor,
+                                           (0x8 | ANSI_TO_VGA[cmd - 100]) << 4);
 
-            } else if (100 <= cmd && cmd <= 107) {  // Set background color.
-                unsigned int value = cmd - 100 + 8;
-                self->bgcolor      = PALETTE[value];
-
-                self->vgacolor &= 0x0F;
-                self->vgacolor |= (0x8 | ANSI_TO_VGA[value - 8]) << 4;
             } else {
                 self->ansi_state = ANSI_STATE_NONE;
             }
@@ -139,6 +135,7 @@ static void vt_run_ansi(struct vt *self, unsigned char chr) {
     default: break;  // TODO: implement other ANSI escape codes also
     }
 }
+// NOLINTEND(readability-magic-numbers)
 
 // Process the next byte in an ANSI escape sequence.
 static void vt_escaped(struct vt *self, unsigned char chr) {
@@ -153,7 +150,7 @@ static void vt_escaped(struct vt *self, unsigned char chr) {
 
     if (self->ansi_state == ANSI_STATE_COMMAND) {
 
-        if ('0' <= chr && chr <= '9') {
+        if (between('0', chr, '9')) {
             if (self->ansi_count == 0) {
                 self->ansi_count = 1;
             }
@@ -169,7 +166,7 @@ static void vt_escaped(struct vt *self, unsigned char chr) {
                 self->ansi_state = ANSI_STATE_NONE;
             }
 
-        } else if ('@' <= chr && chr <= '~') {
+        } else if (between('@', chr, '~')) {
             vt_run_ansi(self, chr);
             self->ansi_state = ANSI_STATE_NONE;
 

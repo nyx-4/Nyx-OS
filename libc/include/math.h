@@ -9,8 +9,9 @@
 extern "C" {
 #endif
 
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b)          (((a) > (b)) ? (a) : (b))
+#define min(a, b)          (((a) < (b)) ? (a) : (b))
+#define between(a, val, b) (((a) <= (val)) && ((val) <= (b)))
 
 #ifdef __cplusplus
 }
