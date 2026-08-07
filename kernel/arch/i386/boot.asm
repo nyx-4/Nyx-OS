@@ -103,3 +103,37 @@ _start:
     jmp .hang
 
 .end:
+
+
+
+; Misc. assembly functions here
+global setup_gdt:function (setup_gdt.end - setup_gdt)
+setup_gdt:
+    cli ; clear interrupts
+
+    ; setup_gdt(size, offset)
+    mov ax, [esp + 4]
+    mov [gdtr], ax      ; set size
+    mov eax, [esp + 8]
+    mov [gdtr + 2], eax ; set offset
+
+    lgdt [gdtr]
+
+    jmp  0x08:.reload_CS ; 0x08 is a stand-in for your code segment
+
+.reload_CS:
+    mov ax, 0x10 ; 0x10 is a stand-in for your data segment
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    ret
+
+.end:
+
+
+section .data:
+gdtr:
+    dw 0 ; size   (limit)
+    dd 0 ; offset (base address)

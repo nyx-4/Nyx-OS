@@ -8,3 +8,4 @@ KERNEL_ARCH_OBJS=\
     $(ARCHDIR)/i386.o \
     $(ARCHDIR)/ttyS.o \
     $(ARCHDIR)/vga.o \
+    $(ARCHDIR)/gdt.o \

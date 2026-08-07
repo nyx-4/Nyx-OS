@@ -8,6 +8,7 @@
 #include <kernel/tty.h>
 #include <kernel/vt.h>
 
+#include "gdt.h"
 #include "multiboot2.h"
 #include "ttyS.h"
 #include "vga.h"
@@ -84,6 +85,9 @@ void kernel_early(uint32_t magic, struct multiboot2_info *multiboot2) {
     }
 
     handle_init_array();  // handle global constructors
+
+    gdt_init();
+    setup_gdt(sizeof(gdt), (uintptr_t)&gdt);  // setup GDT
 
     // Run the main kernel.
     kernel_main();
